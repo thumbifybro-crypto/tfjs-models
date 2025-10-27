@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinematic Image Converter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    canvas {
+      max-width: 100%;
+      border-radius: 1rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body class="bg-black text-white flex flex-col items-center justify-center min-h-screen p-6">
+  <h1 class="text-3xl font-bold mb-4 text-purple-400">🎨 Cinematic Image Converter</h1>
+  <input id="fileInput" type="file" accept="image/*" class="mb-4 p-2 bg-gray-800 rounded-lg border border-purple-600 cursor-pointer" />
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const input = document.getElementById("fileInput");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    input.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        applyCinematicEffect();
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    function applyCinematicEffect() {
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        let r = data[i], g = data[i+1], b = data[i+2];
+        // Add purple-magenta tint
+        data[i] = r * 0.8 + 60;  // red
+        data[i+1] = g * 0.4;     // green
+        data[i+2] = b * 1.2 + 80; // blue
+        // Add slight contrast
+        data[i] = Math.min(255, data[i] * 1.1);
+        data[i+1] = Math.min(255, data[i+1] * 1.1);
+        data[i+2] = Math.min(255, data[i+2] * 1.1);
+      }
+      ctx.putImageData(imgData, 0, 0);
+    }
+  </script>
+</body>
+</html>
